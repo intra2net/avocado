@@ -146,6 +146,17 @@ popd
 %install
 %py3_install
 %{__mv} %{buildroot}%{python3_sitelib}/avocado/etc %{buildroot}
+# TODO: fix a wrong sysinfo location issue upstream by restoring removed lines
+echo "
+[sysinfo.collectibles]
+# File with list of commands that will be executed and have their output collected
+commands = etc/avocado/sysinfo/commands
+# File with list of files that will be collected verbatim
+files = etc/avocado/sysinfo/files
+# File with list of commands that will run alongside the job/test
+profilers = etc/avocado/sysinfo/profilers
+" >> %{buildroot}/etc/avocado/avocado.conf
+%{__sed} -e 's/ etc\/avocado\/sysinfo\// \/etc\/avocado\/sysinfo\//' -i %{buildroot}/etc/avocado/avocado.conf
 pushd optional_plugins/html
 %py3_install
 popd
@@ -279,6 +290,8 @@ Common files (such as configuration) for the Avocado Testing Framework.
 %dir %{_sysconfdir}/avocado/scripts/job/pre.d
 %dir %{_sysconfdir}/avocado/scripts/job/post.d
 %dir %{_sharedstatedir}/avocado
+# NOTE: this file is created by our patches
+%config(noreplace)%{_sysconfdir}/avocado/avocado.conf
 %config(noreplace)%{_sysconfdir}/avocado/sysinfo/commands
 %config(noreplace)%{_sysconfdir}/avocado/sysinfo/files
 %config(noreplace)%{_sysconfdir}/avocado/sysinfo/profilers
